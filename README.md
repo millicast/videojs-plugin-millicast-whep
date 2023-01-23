@@ -16,5 +16,3 @@ Some useful links regarding this issue in case you want to investigate:
 * https://codepen.io/exlord-the-styleful/pen/oNWjBjR?editors=1000
 * https://github.com/videojs/video.js/issues/7304#issuecomment-876220163
 * https://gist.github.com/Exlord/c0029012278674865eb026d2e5b60f32
-
-This will require some work in order 
