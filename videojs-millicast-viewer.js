@@ -27,7 +27,7 @@ function millicastViewer({ url }) {
 
     videojs.log('Before WHEP connection')
     //Start publishing
-    whip.view(pc, url).then();
+    whip.view(pc, url);
 
     // Add tracks transceiver receiver tracks to our Media Stream object
     pc.getReceivers().forEach((r) => {
