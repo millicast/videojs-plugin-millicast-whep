@@ -3,11 +3,14 @@ import { WHEPClient } from './whep'
 
 // A basic plugin is a plain JavaScript function:
 function millicastViewer({ url }) {
-    
-    this.on('play', function () {
+
+    const playbackStartedLog = () => {
         videojs.log('playback began!');
-    });
-    
+        this.off('play', playbackStartedLog);
+    }
+
+    this.on('play', playbackStartedLog);
+
     // Initialize empty media stream object
     const stream = new MediaStream();
 
@@ -37,7 +40,18 @@ function millicastViewer({ url }) {
     var vid = this.tech().el();
     vid.srcObject = stream;
     vid.play();
-    this.trigger('playing');
+
+    // Custom handler for play button after stopping
+    const resumeStreamHandler = () => {
+        vid.play();
+        videojs.log('Playback resumed!')
+        this.player().controlBar.playToggle.off('click', resumeStreamHandler);
+    }
+
+    // Adding this Listener so that play/pause button work
+    this.player().on('pause', () => {
+        this.player().controlBar.playToggle.on('click', resumeStreamHandler);
+    });
 }
 
 // All that's left is to register the plugin with Video.js:
