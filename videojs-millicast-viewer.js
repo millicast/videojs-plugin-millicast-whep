@@ -1,53 +1,72 @@
 import videojs from 'video.js'
 import { WHEPClient } from 'whip/whep'
 
-// A basic plugin is a plain JavaScript function:
-function millicastViewer({ url }) {
 
-    const playbackStartedLog = () => {
-        videojs.log('playback began!');
-        this.off('play', playbackStartedLog);
+
+const Plugin = videojs.getPlugin('plugin')
+const ModalDialog = videojs.getComponent('ModalDialog')
+
+
+export default class MillicastWhepPlugin extends Plugin {
+    constructor(player, options) {
+        super(player, options);
+
+        this.modal = new ModalDialog(player, {
+            temporary: false,
+            label: 'Offline',
+            uncloseable: true
+        })
+        player.addChild(this.modal)
+
+        this.vid = player.tech().el();
+        player.play = () => {
+            this.vid.play()
+        }
+        this.pause = () => {
+            this.vid.pause()
+        }
+        console.log(options);
+
+        this.stream = new MediaStream();
+        this.vid.srcObject = this.stream;
+
+        // Initialize empty media stream object
+
+        // Create Peer Connection
+        this.pc = new RTCPeerConnection();
+
+        // Add audio and video transceivers to the Peer Connection
+        this.pc.addTransceiver('video', {
+            direction: 'recvonly'
+        })
+        this.pc.addTransceiver('audio', {
+            direction: 'recvonly'
+        })
+
+        videojs.log('Before WHEP connection')
+        //Start publishing
+        this.millicastView(player, options)
     }
-
-    this.on('play', playbackStartedLog);
-
-    // Initialize empty media stream object
-    const stream = new MediaStream();
-
-    // Create Peer Connection
-    const pc = new RTCPeerConnection();
-
-    // Add audio and video transceivers to the Peer Connection
-    pc.addTransceiver('video', {
-        direction: 'recvonly'
-    })
-    pc.addTransceiver('audio', {
-        direction: 'recvonly'
-    })
-
-    //Create whip client
-    const whip = new WHEPClient();
-
-    videojs.log('Before WHEP connection')
-    //Start publishing
-    whip.view(pc, url);
-
-    // Add tracks transceiver receiver tracks to our Media Stream object
-    pc.getReceivers().forEach((r) => {
-        stream.addTrack(r.track)
-    })
-
-    var vid = this.tech().el();
-    vid.srcObject = stream;
-    this.play = () => {
-        vid.play()
-      }
-    this.pause = () => {
-        vid.pause()
+    millicastView = async (player, options) => {
+        //Create whip client
+        var whep = new WHEPClient();
+        try {
+            await whep.view(this.pc, options.url);
+            this.modal.close()
+            // Add tracks transceiver receiver tracks to our Media Stream object
+            this.pc.getReceivers().forEach((r) => {
+                this.stream.addTrack(r.track)
+            })
+            player.play();
+        } catch (error) {
+            const modalContent = document.createElement('h1')
+            modalContent.innerHTML = error
+            this.modal.content(modalContent)
+            this.modal.open()
+            player.pause()
+        }
     }
-    vid.play();
-
 }
 
 // All that's left is to register the plugin with Video.js:
-videojs.registerPlugin('millicastViewer', millicastViewer);
+videojs.registerPlugin('millicastViewer', MillicastWhepPlugin);
