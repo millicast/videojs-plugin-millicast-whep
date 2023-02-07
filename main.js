@@ -6,5 +6,5 @@ var options = { muted: true };
 // Initialize Video.js player
 videojs('my-video', options, function onPlayerReady() {
   videojs.log('Your player is ready!');
-  this.millicastViewer({ url: "https://director.millicast.com/api/whep/tnJhvK/l8yvq23u" })
+  this.millicastViewer({ url: "https://director.millicast.com/api/whep/QYrKNJ/lddhd20d" })
 });

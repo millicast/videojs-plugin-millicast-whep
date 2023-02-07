@@ -11,5 +11,8 @@
   "devDependencies": {
     "video.js": "^7.20.3",
     "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "whip": "https://github.com/medooze/whip-js.git"
   }
 }

@@ -408,3 +408,7 @@ vite@^4.0.0:
     rollup "^3.7.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+"whip@https://github.com/medooze/whip-js.git":
+  version "1.0.0"
+  resolved "https://github.com/medooze/whip-js.git#ac06c01adfa93ccf3aeb88fe0324a37d32ea4a07"
