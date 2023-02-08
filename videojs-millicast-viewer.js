@@ -1,8 +1,6 @@
 import videojs from 'video.js'
 import { WHEPClient } from 'whip/whep'
 
-
-
 const Plugin = videojs.getPlugin('plugin')
 const ModalDialog = videojs.getComponent('ModalDialog')
 
@@ -25,7 +23,6 @@ export default class MillicastWhepPlugin extends Plugin {
         this.pause = () => {
             this.vid.pause()
         }
-        console.log(options);
 
         this.stream = new MediaStream();
         this.vid.srcObject = this.stream;
@@ -47,11 +44,14 @@ export default class MillicastWhepPlugin extends Plugin {
         //Start publishing
         this.millicastView(player, options)
     }
+
     millicastView = async (player, options) => {
         //Create whip client
         var whep = new WHEPClient();
         try {
-            await whep.view(this.pc, options.url);
+            const whepResponse = await whep.view(this.pc, options.url);
+            if (!whepResponse.ok)
+                throw await whepResponse.text()
             this.modal.close()
             // Add tracks transceiver receiver tracks to our Media Stream object
             this.pc.getReceivers().forEach((r) => {
@@ -59,11 +59,15 @@ export default class MillicastWhepPlugin extends Plugin {
             })
             player.play();
         } catch (error) {
-            const modalContent = document.createElement('h1')
+            console.log(error);
+            const modalContent = document.createElement('h2')
             modalContent.innerHTML = error
             this.modal.content(modalContent)
             this.modal.open()
             player.pause()
+            setTimeout(() => {
+                this.millicastView(player, options)
+            }, 2000);
         }
     }
 }
