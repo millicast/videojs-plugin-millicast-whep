@@ -59,12 +59,14 @@ export default class MillicastWhepPlugin extends Plugin {
             })
             player.play();
         } catch (error) {
-            console.log(error);
             const modalContent = document.createElement('h2')
             modalContent.innerHTML = error
             this.modal.content(modalContent)
             this.modal.open()
+            
             player.pause()
+
+            // Add retries every 2 seconds if connection fails
             setTimeout(() => {
                 this.millicastView(player, options)
             }, 2000);
