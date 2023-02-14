@@ -50,15 +50,14 @@ export default class MillicastWhepPlugin extends Plugin {
         var whep = new WHEPClient();
         try {
             const whepResponse = await whep.view(this.pc, options.url);
-            if (!whepResponse.ok)
-                throw await whepResponse.text()
             this.modal.close()
             // Add tracks transceiver receiver tracks to our Media Stream object
             this.pc.getReceivers().forEach((r) => {
                 this.stream.addTrack(r.track)
             })
             player.play();
-        } catch (error) {
+        }
+         catch (error) {
             const modalContent = document.createElement('h2')
             modalContent.innerHTML = error
             this.modal.content(modalContent)
