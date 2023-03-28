@@ -1,18 +1,21 @@
 import videojs from 'video.js'
 import { WHEPClient } from 'whip/whep'
-import 'videojs-resolution-switcher-webpack'
+import 'videojs-resolution-switcher'
 
 const Plugin = videojs.getPlugin('plugin')
 const ModalDialog = videojs.getComponent('ModalDialog')
 
-// const videojsres = videojs.getComponent('videoJsResolutionSwitcher')
+const LABELS_BY_NUM_LAYERS = {
+    2: ['High', 'Low'],
+    3: ['High', 'Medium', 'Low']
+};
 
 export default class MillicastWhepPlugin extends Plugin {
     constructor(player, options) {
         super(player, options);
 
         // Work around to avoid using src method instead of srcObject  
-        player.src = () => null
+        player.src = () => {}
 
         this.url = options.url
 
@@ -22,9 +25,6 @@ export default class MillicastWhepPlugin extends Plugin {
             uncloseable: true
         })
         
-        this.isLayersLoaded = false
-        this.layersAvailable = [] 
-
         player.addChild(this.modal)
 
         this.vid = player.tech().el();
@@ -35,33 +35,20 @@ export default class MillicastWhepPlugin extends Plugin {
             this.vid.pause()
         }
 
-        this.stream = new MediaStream();
-        this.vid.srcObject = this.stream;
-
-        // Create Peer Connection
-        this.pc = new RTCPeerConnection();
-
-        // Add audio and video transceivers to the Peer Connection
-        this.pc.addTransceiver('video', {
-            direction: 'recvonly'
-        })
-        this.pc.addTransceiver('audio', {
-            direction: 'recvonly'
-        })
-
         videojs.log('Before WHEP connection')
         //Start publishing
         this.millicastView(player, options)
 
         player.videoJsResolutionSwitcher( {
             ui: true,
+            default: 'high',
             customSourcePicker: (p) => { return p },
-            dynamicLabel: false
+            dynamicLabel: true,
         });
-        
+
         player.on('resolutionchange', () => {
-          const encodingId = player.currentResolution().sources[0].res;
-          this.selectLayer(encodingId);
+            const encodingId = player.currentResolution().sources[0].res;
+            this.selectLayer(encodingId);
         });
     }
 
@@ -69,21 +56,41 @@ export default class MillicastWhepPlugin extends Plugin {
         //Create whip client
         this.whep = new WHEPClient();
         try {
+            this.stream = new MediaStream();
+            this.vid.srcObject = this.stream;
+    
+            // Create Peer Connection
+            this.pc = new RTCPeerConnection();
+    
+            // Add audio and video transceivers to the Peer Connection
+            this.pc.addTransceiver('video', {
+                direction: 'recvonly'
+            })
+            this.pc.addTransceiver('audio', {
+                direction: 'recvonly'
+            })
+
             const whepResponse = await this.whep.view(this.pc, options.url);
             this.modal.close()
+
             // Add tracks transceiver receiver tracks to our Media Stream object
             this.pc.getReceivers().forEach((r) => {
                 this.stream.addTrack(r.track)
             })
+
             player.play();
+            
+            let previousActiveLayers = []
             // Listen for whep events
             await this.waitForEventSource().then( eventSource => {
                 eventSource.addEventListener('layers', (event) => {
-                    this.layersAvailable = JSON.parse(event.data).medias[0].layers
-                    if (!this.isLayersLoaded) {
-                        this.initQualityMenu(event)
-                        this.isLayersLoaded = true    
-                    }    
+                    const layerEvent = JSON.parse(event.data).medias[0]
+                    const currentActiveLayers = layerEvent.active
+                    if (previousActiveLayers.length !== currentActiveLayers.length) {
+                        this.layers = layerEvent.layers
+                        this.updateQualityMenu(currentActiveLayers)
+                        previousActiveLayers = currentActiveLayers
+                    }
                 })
             })
         }
@@ -102,36 +109,46 @@ export default class MillicastWhepPlugin extends Plugin {
         }
     }
 
-    initQualityMenu(event) {
-        const data = JSON.parse(event.data)
-        const layers = data['medias'][0].layers
-        const sources = layers.map(layer => ({
-            src: this.url,
-            type: 'video/mp4',
-            label: layer.encodingId === '2' ? 'High' : layer.encodingId === '1' ? 'Medium' : 'Low',
-            res: layer.encodingId,
-        }));
-        this.player.updateSrc(sources);
+    updateQualityMenu(activeLayers) {
+        const labels = LABELS_BY_NUM_LAYERS[activeLayers.length] || [];
+        const sources = activeLayers.map((layer, index) => {
+            return {
+                src: this.url,
+                type: 'video/mp4',
+                label: labels[index],
+                res: layer.id
+            };
+        });
+
+        const qualityMenu = document.querySelector('[aria-label="Quality"] button');
+        if (activeLayers.length > 1){ 
+            this.player.updateSrc(sources); 
+            qualityMenu.disabled = false 
+            qualityMenu.style.opacity = 1
+            qualityMenu.title = 'Quality'
+        }
+        else {
+            qualityMenu.disabled = true
+            qualityMenu.style.opacity = 0.5
+            qualityMenu.title = 'Quality disabled'
+        }
     }
 
     selectLayer = async (encodingId) => {
-        const layerSelected = this.layersAvailable.filter(l => l.encodingId === encodingId)
+        const layerSelected = this.layers.filter(l => l.encodingId === encodingId)
         await this.whep.unselectLayer()
         await this.whep.selectLayer(layerSelected[0]);
     }
 
     waitForEventSource = async () => {
         return new Promise((resolve) => {
-            if ( this.whep.eventSource ) {
+            if (this.whep.eventSource) {
                 resolve(this.whep.eventSource)
             } else {
-                const checkEventSource = setInterval(() => {
-                        if ( this.whep.eventSource ) {
-                            clearInterval(checkEventSource)
-                            resolve(this.whep.eventSource)
-                        }   
-                }, 100)
-            }    
+            setTimeout(() => {
+                resolve(this.waitForEventSource())
+            }, 1000)
+            }
         })
     }
 }

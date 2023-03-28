@@ -13,7 +13,7 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "videojs-resolution-switcher-webpack": "^0.4.6",
+    "videojs-resolution-switcher": "millicast/videojs-resolution-switcher#videojs_whep_plugin",
     "whip": "https://github.com/medooze/whip-js.git"
   }
 }

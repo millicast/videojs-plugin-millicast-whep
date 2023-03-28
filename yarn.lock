@@ -280,10 +280,9 @@ videojs-font@3.2.0:
   resolved "https://registry.npmjs.org/videojs-font/-/videojs-font-3.2.0.tgz"
   integrity sha512-g8vHMKK2/JGorSfqAZQUmYYNnXmfec4MLhwtEFS+mMs2IDY398GLysy6BH6K+aS1KMNu/xWZ8Sue/X/mdQPliA==
 
-videojs-resolution-switcher-webpack@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.npmjs.org/videojs-resolution-switcher-webpack/-/videojs-resolution-switcher-webpack-0.4.6.tgz"
-  integrity sha512-VvIhij9MZMDXw8lL/6N3f0eU+M8+XEMR1PKeyZcd4GoJveUk+GIVzHPUBzCRvt2wX8DZ18FyUa03QODH7zNfrA==
+videojs-resolution-switcher@millicast/videojs-resolution-switcher#videojs_whep_plugin:
+  version "0.4.2"
+  resolved "git+ssh://git@github.com/millicast/videojs-resolution-switcher.git#124525a3d2b38f232c8cb16eb1da5d8cb217c73f"
 
 videojs-vtt.js@^0.15.4:
   version "0.15.4"

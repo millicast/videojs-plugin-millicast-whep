@@ -1,7 +1,7 @@
 import videojs from 'video.js'
 import './videojs-millicast-viewer'
 import MillicastWhepPlugin from './videojs-millicast-viewer';
-import 'videojs-resolution-switcher-webpack/lib/videojs-resolution-switcher.css'
+import 'videojs-resolution-switcher/lib/videojs-resolution-switcher.css'
 
 const url = 'https://director-dev.millicast.com/api/whep/CacWx8/s'
 
