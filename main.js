@@ -10,10 +10,6 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 
 let whepUrl = params.whepUrl ? params.whepUrl : import.meta.env.VITE_WHEP_URL;
 
-if (!whepUrl) {
-  console.error('No Whep URL provided, use whepUrl query param');
-}
-
 videojs.registerPlugin('MillicastWhepPlugin', MillicastWhepPlugin)
 
 // Configure Video.js options
@@ -26,5 +22,3 @@ let player = videojs('my-video', options, function onPlayerReady() {
   videojs.log('Your player is ready!');
   this.MillicastWhepPlugin({ url: whepUrl })
 });
-
-player.fluid(true);

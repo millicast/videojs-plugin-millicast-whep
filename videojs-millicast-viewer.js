@@ -24,9 +24,18 @@ export default class MillicastWhepPlugin extends Plugin {
             label: 'Offline',
             uncloseable: true
         })
-        
+
         player.addChild(this.modal)
 
+        if (!this.url) {
+            const modalContent = document.createElement('h2')
+            modalContent.innerHTML = 'No Whep URL provided, use whepUrl query param'
+            this.modal.content(modalContent)
+            this.modal.open()
+
+            return
+        }
+        
         this.vid = player.tech().el();
         player.play = () => {
             this.vid.play()
@@ -99,7 +108,7 @@ export default class MillicastWhepPlugin extends Plugin {
             modalContent.innerHTML = error
             this.modal.content(modalContent)
             this.modal.open()
-            
+                
             player.pause()
 
             // Add retries every 2 seconds if connection fails
