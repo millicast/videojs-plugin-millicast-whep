@@ -3,7 +3,16 @@ import './videojs-millicast-viewer'
 import MillicastWhepPlugin from './videojs-millicast-viewer';
 import 'videojs-resolution-switcher/lib/videojs-resolution-switcher.css'
 
-const url = 'https://director-dev.millicast.com/api/whep/CacWx8/s'
+
+const params = new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+});
+
+let whepUrl = params.whepUrl ? params.whepUrl : import.meta.env.VITE_WHEP_URL;
+
+if (!whepUrl) {
+  console.error('No Whep URL provided, use whepUrl query param');
+}
 
 videojs.registerPlugin('MillicastWhepPlugin', MillicastWhepPlugin)
 
@@ -15,7 +24,7 @@ var options = {
 // Initialize Video.js player
 let player = videojs('my-video', options, function onPlayerReady() {
   videojs.log('Your player is ready!');
-  this.MillicastWhepPlugin({ url })
+  this.MillicastWhepPlugin({ url: whepUrl })
 });
 
 player.fluid(true);
