@@ -7,7 +7,10 @@ const ModalDialog = videojs.getComponent('ModalDialog')
 
 const LABELS_BY_NUM_LAYERS = {
     2: ['High', 'Low'],
-    3: ['High', 'Medium', 'Low']
+    3: ['High', 'Medium', 'Low'],
+    4: (activeLayers) => activeLayers.map((layer) => {
+            return `${layer.bitrate} kbps`
+        })
 };
 
 export default class MillicastWhepPlugin extends Plugin {
@@ -50,7 +53,7 @@ export default class MillicastWhepPlugin extends Plugin {
 
         player.videoJsResolutionSwitcher( {
             ui: true,
-            default: 'high',
+            default: 'low',
             customSourcePicker: (p) => { return p },
             dynamicLabel: true,
         });
@@ -119,27 +122,28 @@ export default class MillicastWhepPlugin extends Plugin {
     }
 
     updateQualityMenu(activeLayers) {
-        const labels = LABELS_BY_NUM_LAYERS[activeLayers.length] || [];
-        const sources = activeLayers.map((layer, index) => {
-            return {
-                src: this.url,
-                type: 'video/mp4',
-                label: labels[index],
-                res: layer.id
-            };
-        });
-
         const qualityMenu = document.querySelector('[aria-label="Quality"] button');
-        if (activeLayers.length > 1){ 
+        const length = activeLayers.length
+  
+        if (length <= 1) {
+            qualityMenu.disabled = true;
+            qualityMenu.style.opacity = 0.5;
+            qualityMenu.title = 'Quality disabled';
+          } else {
+            qualityMenu.disabled = false;
+            qualityMenu.style.opacity = 1;
+            qualityMenu.title = 'Quality';
+
+            let labels = length > 3 ? LABELS_BY_NUM_LAYERS[4](activeLayers) : LABELS_BY_NUM_LAYERS[length]
+            const sources = activeLayers.map((layer, index) => {
+                return {
+                    src: this.url,
+                    type: 'video/mp4',
+                    label: labels[index],
+                    res: layer.id
+                }
+            })
             this.player.updateSrc(sources); 
-            qualityMenu.disabled = false 
-            qualityMenu.style.opacity = 1
-            qualityMenu.title = 'Quality'
-        }
-        else {
-            qualityMenu.disabled = true
-            qualityMenu.style.opacity = 0.5
-            qualityMenu.title = 'Quality disabled'
         }
     }
 
