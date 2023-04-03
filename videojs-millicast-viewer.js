@@ -53,11 +53,17 @@ export default class MillicastWhepPlugin extends Plugin {
 
         player.videoJsResolutionSwitcher( {
             ui: true,
-            default: 'low',
             customSourcePicker: (p) => { return p },
-            dynamicLabel: true,
+            dynamicLabel: true
         });
 
+        this.auto = {
+            src: this.url,
+            type: 'video/mp4',
+            label: 'Auto',
+            res: 'auto'
+        }
+    
         player.on('resolutionchange', () => {
             const encodingId = player.currentResolution().sources[0].res;
             this.selectLayer(encodingId);
@@ -133,24 +139,25 @@ export default class MillicastWhepPlugin extends Plugin {
             qualityMenu.disabled = false;
             qualityMenu.style.opacity = 1;
             qualityMenu.title = 'Quality';
-
+           
             let labels = length > 3 ? LABELS_BY_NUM_LAYERS[4](activeLayers) : LABELS_BY_NUM_LAYERS[length]
-            const sources = activeLayers.map((layer, index) => {
-                return {
+            const sources = [
+                ...activeLayers.map(({ id }, index) => ({            
                     src: this.url,
                     type: 'video/mp4',
                     label: labels[index],
-                    res: layer.id
-                }
-            })
+                    res: id
+                })),
+                this.auto
+            ]
             this.player.updateSrc(sources); 
         }
     }
 
     selectLayer = async (encodingId) => {
-        const layerSelected = this.layers.filter(l => l.encodingId === encodingId)
         await this.whep.unselectLayer()
-        await this.whep.selectLayer(layerSelected[0]);
+        const layerSelected = encodingId === 'auto' ? {} : this.layers.filter(l => l.encodingId === encodingId)[0]
+        await this.whep.selectLayer(layerSelected);
     }
 
     waitForEventSource = async () => {
