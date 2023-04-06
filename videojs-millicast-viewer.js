@@ -5,11 +5,12 @@ import 'videojs-resolution-switcher'
 const Plugin = videojs.getPlugin('plugin')
 const ModalDialog = videojs.getComponent('ModalDialog')
 
+const bitsUnitsStorage = ['bps', 'kbps', 'mbps', 'gbps']
 const LABELS_BY_NUM_LAYERS = {
     2: ['High', 'Low'],
     3: ['High', 'Medium', 'Low'],
     4: (activeLayers) => activeLayers.map((layer) => {
-            return `${layer.bitrate} kbps`
+            return formatBitsRecursive(layer.bitrate)
         })
 };
 
@@ -53,6 +54,7 @@ export default class MillicastWhepPlugin extends Plugin {
 
         player.videoJsResolutionSwitcher( {
             ui: true,
+            default: 'auto',
             customSourcePicker: (p) => { return p },
             dynamicLabel: true
         });
@@ -65,8 +67,8 @@ export default class MillicastWhepPlugin extends Plugin {
         }
     
         player.on('resolutionchange', () => {
-            const encodingId = player.currentResolution().sources[0].res;
-            this.selectLayer(encodingId);
+            const encodingId = player.currentResolution().sources[0].res
+            this.selectLayer(encodingId)
         });
     }
 
@@ -98,17 +100,13 @@ export default class MillicastWhepPlugin extends Plugin {
 
             player.play();
             
-            let previousActiveLayers = []
             // Listen for whep events
             await this.waitForEventSource().then( eventSource => {
                 eventSource.addEventListener('layers', (event) => {
                     const layerEvent = JSON.parse(event.data).medias[0]
                     const currentActiveLayers = layerEvent.active
-                    if (previousActiveLayers.length !== currentActiveLayers.length) {
-                        this.layers = layerEvent.layers
-                        this.updateQualityMenu(currentActiveLayers)
-                        previousActiveLayers = currentActiveLayers
-                    }
+                    this.layers = layerEvent.layers
+                    this.updateQualityMenu(currentActiveLayers)
                 })
             })
         }
@@ -142,20 +140,20 @@ export default class MillicastWhepPlugin extends Plugin {
            
             let labels = length > 3 ? LABELS_BY_NUM_LAYERS[4](activeLayers) : LABELS_BY_NUM_LAYERS[length]
             const sources = [
+                this.auto,
                 ...activeLayers.map(({ id }, index) => ({            
                     src: this.url,
                     type: 'video/mp4',
                     label: labels[index],
                     res: id
                 })),
-                this.auto
             ]
             this.player.updateSrc(sources); 
         }
     }
 
     selectLayer = async (encodingId) => {
-        await this.whep.unselectLayer()
+        // await this.whep.unselectLayer()
         const layerSelected = encodingId === 'auto' ? {} : this.layers.filter(l => l.encodingId === encodingId)[0]
         await this.whep.selectLayer(layerSelected);
     }
@@ -173,5 +171,13 @@ export default class MillicastWhepPlugin extends Plugin {
     }
 }
 
+const formatBitsRecursive = (value, unitsStoragePosition = 0) => {
+    const newValue = value / 1000
+    if ((newValue < 1) || (newValue > 1 && (unitsStoragePosition + 1) > bitsUnitsStorage.length)) {
+      return `${Math.round(value * 100) / 100} ${bitsUnitsStorage[unitsStoragePosition]}`
+    } else if (newValue > 1) {
+      return formatBitsRecursive(newValue, unitsStoragePosition + 1)
+    }
+}
 // All that's left is to register the plugin with Video.js:
 videojs.registerPlugin('millicastViewer', MillicastWhepPlugin);
