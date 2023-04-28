@@ -1,6 +1,7 @@
 import videojs from 'video.js'
 import MillicastWhepPlugin from 'videojsplugin'
 import 'videojs-resolution-switcher/lib/videojs-resolution-switcher.css'
+import 'videojs-resolution-switcher/lib/videojs-resolution-switcher'
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, prop) => searchParams.get(prop)
