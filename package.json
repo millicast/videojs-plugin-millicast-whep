@@ -1,11 +1,19 @@
 {
-  "name": "videojsplugin",
+  "name": "@millicast/videojs-whep-plugin",
   "private": true,
   "version": "0.0.1-beta.1",
   "author": "Millicast, Inc.",
-  "main": "videojs-millicast-viewer.js",
+  "main": "videojs-whep-viewer.js",
+  "module": "videojs-whep-viewer.js",
   "type": "module",
   "description": "Millicast WHEP plugin for Video.js",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "import": "./videojs-whep-viewer.js",
+      "require": "./videojs-whep-viewer.js"
+    }
+  },
   "scripts": {
     "build": "vite build",
     "preview": "vite preview",
@@ -26,10 +34,10 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
+    "videojs-resolution-switcher": "millicast/videojs-resolution-switcher#videojs_whep_plugin",
     "whip": "medooze/whip-whep-js"
   },
   "peerDependencies": {
-    "video.js": "^7.20.3",
-    "videojs-resolution-switcher": "millicast/videojs-resolution-switcher#videojs_whep_plugin"
+    "video.js": "^7.20.3"
   }
 }

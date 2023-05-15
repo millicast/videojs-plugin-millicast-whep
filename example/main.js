@@ -1,5 +1,5 @@
 import videojs from 'video.js'
-import MillicastWhepPlugin from 'videojsplugin'
+import MillicastWhepPlugin from '@millicast/videojs-whep-plugin'
 import 'videojs-resolution-switcher/lib/videojs-resolution-switcher.css'
 import 'videojs-resolution-switcher/lib/videojs-resolution-switcher'
 
