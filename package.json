@@ -1,6 +1,6 @@
 {
   "name": "@millicast/videojs-whep-plugin",
-  "private": true,
+  "private": false,
   "version": "0.0.1-beta.1",
   "author": "Millicast, Inc.",
   "main": "videojs-whep-viewer.js",
