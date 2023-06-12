@@ -13,8 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "video.js": "^7.20.3",
-    "videojs-resolution-switcher": "millicast/videojs-resolution-switcher#videojs_whep_plugin",
-    "videojsplugin": "../"
+    "@millicast/videojs-whep-plugin": "millicast/videojs-plugin-millicast-whep",
+    "videojs-resolution-switcher": "millicast/videojs-resolution-switcher#videojs_whep_plugin"
   },
   "devDependencies": {
     "vite": "^4.2.1"

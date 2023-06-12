@@ -1,6 +1,5 @@
 import videojs from 'video.js'
 import { WHEPClient } from 'whip/whep'
-import 'videojs-resolution-switcher'
 
 const Plugin = videojs.getPlugin('plugin')
 const ModalDialog = videojs.getComponent('ModalDialog')
@@ -52,12 +51,14 @@ export default class MillicastWhepPlugin extends Plugin {
     // Start publishing
     this.millicastView(player, options)
 
-    player.videoJsResolutionSwitcher({
-      ui: true,
-      default: 'auto',
-      customSourcePicker: (p) => { return p },
-      dynamicLabel: true
-    })
+    if (player.videoJsResolutionSwitcher) {
+      player.videoJsResolutionSwitcher({
+        ui: true,
+        default: 'auto',
+        customSourcePicker: (p) => { return p },
+        dynamicLabel: true
+      })
+    }
 
     this.auto = {
       src: this.url,
@@ -106,7 +107,9 @@ export default class MillicastWhepPlugin extends Plugin {
           const layerEvent = JSON.parse(event.data).medias[0]
           const currentActiveLayers = layerEvent.active
           this.layers = layerEvent.layers
-          this.updateQualityMenu(currentActiveLayers)
+          if (player.videoJsResolutionSwitcher) {
+            this.updateQualityMenu(currentActiveLayers)
+          }
         })
       })
     } catch (error) {
@@ -147,7 +150,9 @@ export default class MillicastWhepPlugin extends Plugin {
           res: id
         }))
       ]
-      this.player.updateSrc(sources)
+      if (this.player.videoJsResolutionSwitcher) {
+        this.player.updateSrc(sources)
+      }
     }
   }
 
