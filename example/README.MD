@@ -1,10 +1,10 @@
 # Millicast Example using VideoJS WHEP plugin
 
-This example shows how to use the VideoJS WHEP plugin to play a stream from Millicast.
+This example shows how to use the Video.js WHEP plugin to play a stream from Millicast.
 
 ### Requirements
 
-An available WHEP url. This can be provided via enviroment variable or query parameter.
+An available WHEP url. This can be provided via environment variable or query parameter.
 
 #### Environment variables
 
