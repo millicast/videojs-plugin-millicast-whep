@@ -8,6 +8,8 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 })
 
 const whepUrl = params.whepUrl ? params.whepUrl : import.meta.env.VITE_WHEP_URL
+const whepTokenInput = params.whepToken ? params.whepToken : import.meta.env.VITE_WHEP_TOKEN
+const whepToken = whepTokenInput ? whepTokenInput : null;
 
 videojs.registerPlugin('MillicastWhepPlugin', MillicastWhepPlugin)
 
@@ -19,5 +21,5 @@ const options = {
 // Initialize Video.js player
 videojs('my-video', options, function onPlayerReady () {
   videojs.log('Your player is ready!')
-  this.MillicastWhepPlugin({ url: whepUrl })
+  this.MillicastWhepPlugin({ url: whepUrl, token: whepToken })
 })
