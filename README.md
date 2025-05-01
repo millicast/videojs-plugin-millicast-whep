@@ -8,6 +8,7 @@ This project is a demonstration of integrating the popular [video.js](https://vi
     ```
 2. [Create a Dolby.io account](https://streaming.dolby.io/signup) and create a publish token from the "Live Broadcast" menu.
 3. Set the environment variable `VITE_WHEP_URL` to a WHEP URL from the [Dolby.io Real-time streaming dashboard](https://streaming.dolby.io/#/tokens).  Find this in the "API" tab once you have selected your publish token.
+4. OPTIONAL: Set the environment variable `VITE_WHEP_TOKEN` if your WHEP server requires bearer token. If this env is unset, no bearer token is transfered in WHEP communication.
 
 ## Run the example
 1. Ensure you are in the `examples` folder.

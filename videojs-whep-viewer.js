@@ -91,7 +91,7 @@ export default class MillicastWhepPlugin extends Plugin {
         direction: 'recvonly'
       })
 
-      await this.whep.view(this.pc, options.url)
+      await this.whep.view(this.pc, options.url, options.token)
       this.modal.close()
 
       // Add tracks transceiver receiver tracks to our Media Stream object
